@@ -3,12 +3,12 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name				"rathole">
 <!ENTITY author				"iiLaurens">
-<!ENTITY version			"2025.05.14">
-<!ENTITY bundleversion			"2025.05.14">
+<!ENTITY version			"2026.05.14">
+<!ENTITY bundleversion			"2026.05.14">
 <!ENTITY launch				"Settings/rathole">
-<!ENTITY pluginURL			"https://raw.githubusercontent.com/iiLaurens/rathole-unraid/master/plugin/rathole.plg">
-<!ENTITY bundleURL			"https://raw.githubusercontent.com/iiLaurens/rathole-unraid/master/archive/rathole-&bundleversion;-x86_64-1.txz">
-<!ENTITY md5bundle			"276e7000b50f1293f989e84a433d22b7">
+<!ENTITY pluginURL			"https://raw.githubusercontent.com/iiLaurens/rathole-unraid/main/plugin/rathole.plg">
+<!ENTITY bundleURL			"https://raw.githubusercontent.com/iiLaurens/rathole-unraid/main/archive/rathole-&bundleversion;-x86_64-1.txz">
+<!ENTITY md5bundle			"1ec29ed62fe06fd44ea375db4891db3d">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;">
@@ -16,8 +16,8 @@
 <CHANGES>
 ##&name;
 
-###2025-05-14
-- First version (rathole client mode)
+###2026-05-14
+- First version
 
 </CHANGES>
 
@@ -40,7 +40,6 @@ Install script.
 -->
 <FILE Run="/bin/bash" Method="install">
 <INLINE>
-
 ratholezip_url_base="https://github.com/rathole-org/rathole/releases/download"
 ratholezip_name="rathole-x86_64-unknown-linux-gnu.zip"
 installdir="/boot/config/plugins/rathole/install"
@@ -51,21 +50,21 @@ if [ -f "${installdir}/rathole" ]; then
   mv /usr/sbin/ratholeorig.new /usr/sbin/ratholeorig
   chown root:root /usr/sbin/ratholeorig
   chmod 755 /usr/sbin/ratholeorig
-  version=$(ratholeorig --version 2>&1 | grep -Po "[\d]+\.[\d]+\.[\d]+" | head -1)
+  version=$(ratholeorig --version 2&gt;&amp;1 | grep -Po "[\d]+\.[\d]+\.[\d]+" | head -1)
 fi
 
 for f in /boot/config/plugins/rathole/install/rathole-*.txz; do
-  [[ "${f}" != *"&bundleversion;"* ]] && rm -f "${f}"
+  [[ "${f}" != *"&bundleversion;"* ]] &amp;&amp; rm -f "${f}"
 done
 
-curl -fsS --connect-timeout 10 https://api.github.com/ >/dev/null 2>&1
+curl -fsS --connect-timeout 10 https://api.github.com/ &gt;/dev/null 2&gt;&amp;1
 if [ $? -eq 0 ]; then
   latest_tag=$(curl -fs --connect-timeout 15 https://api.github.com/repos/rathole-org/rathole/releases/latest | grep -Po '"tag_name":\s*"\K[^"]+')
   if [ -z "${latest_tag}" ]; then
     echo "Warning: Could not determine latest rathole version from GitHub API"
   fi
   latest_version=$(echo "${latest_tag}" | grep -Po "[\d]+\.[\d]+\.[\d]+")
-  if [ -n "${version}" ] && [ -n "${latest_version}" ] && [ "${version}" = "${latest_version}" ]; then
+  if [ -n "${version}" ] &amp;&amp; [ -n "${latest_version}" ] &amp;&amp; [ "${version}" = "${latest_version}" ]; then
     echo "Local rathole binary is up-to-date (${version})"
   else
     echo "Downloading rathole ${latest_tag}..."
@@ -88,7 +87,7 @@ else
   echo "Connection error - Could not reach GitHub API - Will try fallback to existing binary"
   if [ ! -f /usr/sbin/ratholeorig ]; then
     echo "Install failed - No binary found"
-    removepkg rathole-&bundleversion;-bundle >/dev/null
+    removepkg rathole-&bundleversion;-bundle &gt;/dev/null
     rm -f /var/lib/pkgtools/packages/rathole-*-bundle
     rm -rf /usr/local/emhttp/plugins/rathole
     exit 1
@@ -97,7 +96,7 @@ fi
 
 if [ ! -f /usr/sbin/ratholeorig ]; then
   echo "Install failed - No binary found"
-  removepkg rathole-&bundleversion;-bundle >/dev/null
+  removepkg rathole-&bundleversion;-bundle &gt;/dev/null
   rm -f /var/lib/pkgtools/packages/rathole-*-bundle
   rm -rf /usr/local/emhttp/plugins/rathole
   exit 1
@@ -105,7 +104,7 @@ fi
 
 if [ ! -f /boot/config/plugins/rathole/rathole.toml ]; then
   mkdir -p /boot/config/plugins/rathole
-  cat > /boot/config/plugins/rathole/rathole.toml << 'EOF'
+  cat &gt; /boot/config/plugins/rathole/rathole.toml &lt;&lt; 'EOF'
 [client]
 remote_addr = "myserver.example.com:2333"
 
@@ -117,6 +116,7 @@ fi
 
 chown root:root /etc/rc.d/rc.rathole
 chmod 755 /etc/rc.d/rc.rathole
+chmod 755 /usr/local/emhttp/plugins/rathole/scripts/rc.rathole
 /etc/rc.d/rc.rathole restart
 
 echo ""
@@ -144,9 +144,12 @@ Uninstall script
 <INLINE>
 /etc/rc.d/rc.rathole stop
 rm -rf /boot/config/plugins/rathole/install
+rm -f /boot/config/plugins/rathole/.gitignore
+rmdir /boot/config/plugins/rathole 2>/dev/null
 rm -f /usr/sbin/ratholeorig
 rm -f /etc/rc.d/rc.rathole
-removepkg rathole-&bundleversion;-bundle >/dev/null
+rm -f /var/log/rathole.log
+removepkg rathole-&bundleversion;-bundle &gt;/dev/null
 rm -f /var/lib/pkgtools/packages/rathole-*-bundle
 rm -rf /usr/local/emhttp/plugins/rathole
 

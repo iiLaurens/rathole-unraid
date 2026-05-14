@@ -28,7 +28,7 @@ $currentversion = isset($output[0]) ? $output[0] : 'unknown';
 ?>
 
 <?
-exec('pgrep -f "ratholeorig.*--client" 2>/dev/null', $pidout);
+exec('pgrep ratholeorig 2>/dev/null', $pidout);
 $running = !empty($pidout);
 $statustext = $running ? '<span style="color:#5fba3a">&#9679; Running</span>' : '<span style="color:#e05c5c">&#9679; Stopped</span>';
 ?>
@@ -55,14 +55,14 @@ $statustext = $running ? '<span style="color:#5fba3a">&#9679; Running</span>' : 
     <br><br>
     <form method="POST" action="/update.php" target="progressFrame">
       <input type="hidden" name="#include" value="/webGui/include/update.php">
-      <input type="hidden" name="#command" value="/etc/rc.d/rc.rathole">
+      <input type="hidden" name="#command" value="/usr/local/emhttp/plugins/rathole/scripts/rc.rathole">
       <input type="hidden" name="#arg[1]" value="start">
       <input type="submit" class="btn" value="Start">
     </form>
     <br>
     <form method="POST" action="/update.php" target="progressFrame">
       <input type="hidden" name="#include" value="/webGui/include/update.php">
-      <input type="hidden" name="#command" value="/etc/rc.d/rc.rathole">
+      <input type="hidden" name="#command" value="/usr/local/emhttp/plugins/rathole/scripts/rc.rathole">
       <input type="hidden" name="#arg[1]" value="stop">
       <input type="submit" class="btn" value="Stop">
     </form>

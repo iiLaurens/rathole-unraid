@@ -8,7 +8,7 @@ start() {
       echo "rc.rathole: config file not found at /boot/config/plugins/rathole/rathole.toml" >&2
       return 1
     fi
-    /usr/sbin/ratholeorig --client "$CONFIG_FILE" >> /var/log/rathole.log 2>&1 &
+    stdbuf -oL -eL /usr/sbin/ratholeorig --client "$CONFIG_FILE" >> /var/log/rathole.log 2>&1 &
   fi
 }
 
