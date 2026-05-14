@@ -57,7 +57,6 @@ fi
 for f in /boot/config/plugins/rathole/install/rathole-*.txz; do
   [[ "${f}" != *"&bundleversion;"* ]] && rm -f "${f}"
 done
-rm -f /usr/sbin/rathole
 
 curl -fsS --connect-timeout 10 https://api.github.com/ >/dev/null 2>&1
 if [ $? -eq 0 ]; then
@@ -116,47 +115,16 @@ local_addr = "127.0.0.1:8080"
 EOF
 fi
 
+chown root:root /etc/rc.d/rc.rathole
+chmod 755 /etc/rc.d/rc.rathole
+/etc/rc.d/rc.rathole restart
+
 echo ""
 echo "-----------------------------------------------------------"
 echo " rathole has been installed."
 echo "-----------------------------------------------------------"
 echo ""
 
-</INLINE>
-</FILE>
-
-<!--
-Create wrapper (handles start/stop and client mode launch)
--->
-<FILE Name="/usr/sbin/rathole" Mode="0755">
-<INLINE>
-#!/bin/bash
-CONFIG="/boot/config/plugins/rathole/rathole.toml"
-
-case "$1" in
-  start)
-    if pgrep -f "ratholeorig.*--client" >/dev/null 2>&1; then
-      echo "rathole is already running"
-    else
-      echo "Starting rathole client..."
-      nohup ratholeorig --client "$CONFIG" >>/boot/config/plugins/rathole/rathole.log 2>&1 &
-      echo "rathole started (PID $!)"
-    fi
-    ;;
-  stop)
-    pid=$(pgrep -f "ratholeorig.*--client")
-    if [ -n "$pid" ]; then
-      echo "Stopping rathole..."
-      kill -SIGINT $pid
-      echo "rathole stopped"
-    else
-      echo "rathole is not running"
-    fi
-    ;;
-  *)
-    ratholeorig "$@"
-    ;;
-esac
 </INLINE>
 </FILE>
 
@@ -174,10 +142,10 @@ Uninstall script
 -->
 <FILE Run="/bin/bash" Method="remove">
 <INLINE>
-pid=$(pgrep -f "ratholeorig.*--client"); [ -n "$pid" ] && kill -SIGINT $pid 2>/dev/null
+/etc/rc.d/rc.rathole stop
 rm -rf /boot/config/plugins/rathole/install
 rm -f /usr/sbin/ratholeorig
-rm -f /usr/sbin/rathole
+rm -f /etc/rc.d/rc.rathole
 removepkg rathole-&bundleversion;-bundle >/dev/null
 rm -f /var/lib/pkgtools/packages/rathole-*-bundle
 rm -rf /usr/local/emhttp/plugins/rathole
